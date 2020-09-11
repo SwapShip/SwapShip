@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kimbap Finance</title>
+    <link rel='stylesheet' href='stylesheets/style.css' />
+    <link rel="icon" href="images/kimbap.png">
+    <title>Kimbap is sweeter than sushi.</title>
+    <!-- CSS only -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <meta name="viewport" content="width=500, initial-scale=1">
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+    <script src="https://raw.githubusercontent.com/talmand/jquery-animate-numbers/master/jquery.animateNumbers.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3h66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <meta name="theme-color" content="#2c4762">
+    <script src="https://unpkg.com/web3@latest/dist/web3.min.js"></script>
+    <script>
+    (function($) {
+        $.fn.animateNumbers = function(stop, commas, duration, ease) {
+            return this.each(function() {
+                var $this = $(this);
+                var isInput = $this.is('input');
+                var start = parseInt(isInput ? $this.val().replace(/,/g, "") : $this.text().replace(/,/g, ""));
+                var regex = /(\d)(?=(\d\d\d)+(?!\d))/g;
+                commas = commas === undefined ? true : commas;
+
+                // number inputs can't have commas or it blanks out
+                if (isInput && $this[0].type === 'number') {
+                    commas = false;
+                }
+
+                $({ value: start }).animate({ value: stop }, {
+                    duration: duration === undefined ? 1000 : duration,
+                    easing: ease === undefined ? "swing" : ease,
+                    step: function() {
+                        isInput ? $this.val(Math.floor(this.value)) : $this.text(Math.floor(this.value));
+                        if (commas) {
+                            isInput ? $this.val($this.val().replace(regex, "$1,")) : $this.text($this.text().replace(regex, "$1,"));
+                        }
+                    },
+                    complete: function() {
+                        if (parseInt($this.text()) !== stop || parseInt($this.val()) !== stop) {
+                            isInput ? $this.val(stop) : $this.text(stop);
+                            if (commas) {
+                                isInput ? $this.val($this.val().replace(regex, "$1,")) : $this.text($this.text().replace(regex, "$1,"));
+                            }
+                        }
+                    }
+                });
+            });
+        };
+    })(jQuery);
+    </script>
+    <script src="js/main.js"></script>
+</head>
+<style>
+body:not(.web3) .web3true {
+    display: none;
+}
+
+.home .swapcard {
+    height: 175px;
+}
+
+.home .swapcard2 {
+    height: 115px;
+}
+
+.web3 .web3false {
+    display: none
+}
+
+* {
+    font-weight: 400 !important;
+}
+
+.yield-badge {
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    font-size: 20px;
+}
+
+body.approved .not-approved-spend {
+    display: none
+}
+
+body:not(.approved) .approved-spend {
+    display: none
+}
+
+body.approved-swap .not-approved-swap-spend {
+    display: none
+}
+
+body:not(.approved-swap) .approved-swap-spend {
+    display: none
+}
+
+* {
+    font-family: adumu, Courier New, Arial, Times New Roman !important;
+}
+
+html {
+    height: 100%;
+    background-color: #2c4762 !important
+}
+
+body {
+    background-color: #375CD4 !important
+}
+
+.card {
+    background-color: rgba(0, 0, 0, 0.3)
+}
+
+.swapcard,
+.swapcard2 {
+    display: inline-block;
+    width: 300px;
+    height: 240px;
+    margin: 10px;
+    transition: 1s box-shadow;
+}
+
+.swapcard:hover,
+.swapcard2:hover {
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.3)
+}
+
+.tokenpair {
+    margin-bottom: 15px;
+}
+
+.token1,
+.token2 {
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+    border-radius: 99px;
+    border: 3px solid #FFF;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    background: #000;
+    background-size: cover !important;
+}
+
+.token2 {
+    position: relative;
+    right: 8px
+}
+
+.token1 {
+    position: relative;
+    left: 8px;
+    z-index: 99;
+}
+
+.kimbap {
+    background-image: url('images/kimbapcoinlogo.png')
+}
+
+.sushi {
+    background-image: url('images/sushi.png')
+}
+
+.dai {
+    background-image: url('images/dai.png')
+}
+
+.eth {
+    background-image: url('images/eth.png')
+}
+
+.usdc {
+    background-image: url('images/usdc.png')
+}
+
+.usdt {
+    background-image: url('images/usdt.png')
+}
+
+.susd {
+    background-image: url('images/susd.png')
+}
+
+.band {
+    background-image: url('images/band.png')
+}
+
+.tend {
+    background-image: url('images/tend.png')
+}
+
+.ycrv {
+    background-image: url('images/ycrv.png')
+}
+
+.yfi {
+    background-image: url('images/yfi.png')
+}
+
+.yfii {
+    background-image: url('images/yfii.png')
+}
+</style>
+
+<body class="text-center">
+    <div class="cover-container d-flex w-100 h-100 mx-auto flex-column">
+        <header class="top-header">
+            <p>
+<!--                 <span class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+                BTC : <span>10276 USD</span> <span class="dash-span">-</span> 
+                ETH : <span>3556.50 USD</span> <span class="dash-span">-</span>
+                BTC/ETH : <span>0.03466936</span> <span class="dash-span"></span>
+                KIMBAP : <span>0.05567 USD</span> -->
+            </p>
+        </header>
+        <header class="masthead mb-auto">
+            <div class="inner">
+                <a href="#"><img class="side-logo" src="./images/kimbap-logo.png" alt="#" /></a>
+                <nav class="nav nav-masthead justify-content-center">
+                    <a class="nav-link" href="#home" onclick="nav('home')">Home</a>
+                    <a class="nav-link" href="#farm" onclick="nav('farms')">Farm & Trade</a>
+                    <!--<a class="nav-link" href="#farm" onclick="nav('farms')">FARM</a>-->
+                    <a class="nav-link" href="#about" onclick="nav('about')">About</a>
+                </nav>
+            </div>
+        </header>
+        <main role="main" class="inner cover home">
+            <div class="container">
+                <div class="row m-0 d-flex">
+                    <div class="col-12 p-0 d-flex home-top">
+                        <a href="#"><img class="logo" src="./images/logo.png" alt="#" /></a>
+                        <div>
+                            <a href="https://twitter.com/Kimbap_Finance"><img src="./images/t.png"  alt="#" /></a>
+                            <a href="https://t.me/kimbapswap"><img src="./images/tel.png"  alt="#" /></a>
+                            <a href="https://discord.gg/yK2DQ7t"><img src="./images/tim.png"  alt="#" /></a>
+                        </div>
+                    </div>
+                    <div class="col-12 p-0 home-top-p">
+                        <p>STAKE UNISWAP LP TOKENS. EARN <span>FRESH YIELD</span> 24/7</p>
+                    </div>
+                </div>
+                <div class="row m-0 home-cards-sec">
+                    <div class="card swapcard web3true farm-card">
+                        <div class="card-body d-flex  align-items-center justify-content-center">
+                            <span>
+                                <h6 class="card-subtitle mb-2 text-muted">Your KIMBAP Balance</h6>
+                                <h2 class="card-text balance"><span>-.----</span></h2>
+                                <a href="#farms" onclick="nav('farms')" class="card-link btn btn-primary btn-lg">Farm</a>
+                                
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card web3true swapcard token-card">
+                        <div class="card-body d-flex  align-items-center justify-content-center">
+                            <span>
+                                <h6 class="card-subtitle mb-2 text-muted">Token Price</h6>
+                                <h2 class="card-text tokenprice">-.----</h2>
+                                <a href="#" class="card-link btn btn-primary btn-lg" onclick="getlptoken(0)">ETH</a>
+                                <a href="#" class="card-link btn btn-primary btn-lg" onclick="getlptoken(1)">USDT</a>
+                                
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card web3true swapcard2">
+                        <div class="card-body d-flex  align-items-center justify-content-center">
+                            <span>
+                                <h6 class="card-subtitle mb-2 text-muted">Total Value Staked</h6>
+                                <h2 class="card-text tvl">$<span>-.----</span></h2>
+                                
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card web3true swapcard2">
+                        <div class="card-body d-flex  align-items-center justify-content-center">
+                            <span>
+                                <h6 class="card-subtitle mb-2 text-muted">Market Cap</h6>
+                                <h2 class="card-text mcap">$<span>-.----</span></h2>
+                                
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <main role="main" class="inner cover about" style="display: none;">
+            <div class="container">
+                <div class="row m-0 d-flex">
+                    <div class="col-12 p-0 d-flex home-top">
+                        <a href="#"><img class="logo" src="./images/logo.png" alt="#" /></a>
+                        <div>
+                            <a href="https://twitter.com/Kimbap_Finance"><img src="./images/t.png"  alt="#" /></a>
+                            <a href="https://t.me/kimbapswap"><img src="./images/tel.png"  alt="#" /></a>
+                            <a href="https://discord.gg/yK2DQ7t"><img src="./images/tim.png"  alt="#" /></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row m-0 about-col">
+                    <p class="lead">THE KIMBAP ADVANTAGE:</p>
+                    <p>Removed the public mint() function present in the other forks (not in the original - SUSHI) that allows the contract owner to mint tokens to the dev address.</p>
+                    <p>Removed Google Analytics from the website - No tracking.</p>
+                    <p>More common stablecoin pairs.</p>
+                    <p>Check the code at the links below.</p>
+                    <br>
+                    <p class="lead">REWARDS INFORMATION:</p>
+                    <p>50 KIMBAP tokens per block for the first 50,000 blocks. </p>
+                    <p>Drops to 10 KIMBAP tokens per block afterwards.</p>
+                    <p class="about-p1">3X for KIMBAP/ETH</p>
+                    <p class="about-p1">3X for KIMBAP/USDT</p>
+                    <p class="about-p1">3X for KIMBAP/USDC</p>
+                    <div class="row m-0 home-cards-sec about-card-col">
+                        <div class="card hide web3true col-xs-12 col-md-5">
+                            <div class="card-body d-flex align-items-center">
+                                <span>
+                                    <h6 class="card-subtitle mb-2 text-muted">Supply</h6>
+                                    <h2 class="card-text supply"><span>-.----</span> KIMBAP</h2>
+                                    
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card hide web3true col-xs-12 offset-md-2 col-md-5">
+                            <div class="card-body d-flex align-items-center justify-content-center">
+                                <span>
+                                    <h6 class="card-subtitle mb-2 text-muted">Market Cap</h6>
+                                    <h2 class="card-text mcap">$<span>-.----</span></h2>
+                                    
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <main role="main" class="inner cover farms" style="display:none">
+            <div class="container">
+                <div class="row m-0 d-flex">
+                    <div class="col-12 p-0 d-flex home-top">
+                        <a href="#"><img class="logo" src="./images/logo.png" alt="#" /></a>
+                        <div>
+                            <a href="https://twitter.com/Kimbap_Finance"><img src="./images/t.png"  alt="#" /></a>
+                            <a href="https://t.me/kimbapswap"><img src="./images/tel.png"  alt="#" /></a>
+                            <a href="https://discord.gg/yK2DQ7t"><img src="./images/tim.png"  alt="#" /></a>
+                        </div>
+                    </div>
+                    <div class="col-12 p-0 home-top-p">
+                        <p>STAKE UNISWAP LP TOKENS. EARN <span>FRESH YIELD</span> 24/7</p>
+                    </div>
+                </div>
+                <div class="farm-boxes home-cards-sec">
+                    <div class="card swapcard">
+                        <span class="badge badge-primary yield-badge">3x</span>
+                        <div class="card-body">
+                            <div class="tokenpair">
+                                <div class="token1 kimbap"></div>
+                                <div class="token2 eth"></div>
+                            </div>
+                            <h6 class="card-subtitle mb-2 text-muted">UNISWAP KIMBAP/ETH</h6>
+                            <h2 class="card-text apy0">APY <span class="pool0yield">---.-%</span></h2>
+                            <a href="#pool0" onclick="nav('pool0')" class="card-link btn btn-primary btn-lg">
+                                Farm
+                            </a>
+                            <a href="#" class="card-link btn btn-primary btn-lg" onclick="getlptoken(0)">
+                                Trade
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card swapcard">
+                        <span class="badge badge-primary yield-badge">3x</span>
+                        <div class="card-body">
+                            <div class="tokenpair">
+                                <div class="token1 kimbap"></div>
+                                <div class="token2 usdt"></div>
+                            </div>
+                            <h6 class="card-subtitle mb-2 text-muted">UNISWAP KIMBAP/USDT</h6>
+                            <h2 class="card-text apy0">APY <span class="pool1yield">---.-%</span></h2>
+                            <a href="#pool1" onclick="nav('pool1')" class="card-link btn btn-primary btn-lg">
+                                Farm
+                            </a>
+                            <a href="#" class="card-link btn btn-primary btn-lg" onclick="getlptoken(1)">
+                                Trade
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card swapcard">
+                        <span class="badge badge-primary yield-badge">3x</span>
+                        <div class="card-body">
+                            <div class="tokenpair">
+                                <div class="token1 kimbap"></div>
+                                <div class="token2 usdc"></div>
+                            </div>
+                            <h6 class="card-subtitle mb-2 text-muted">UNISWAP KIMBAP/USDC</h6>
+                            <h2 class="card-text apy0">APY <span class="pool2yield">---.-%</span></h2>
+                            <a href="#pool2" onclick="nav('pool2')" class="card-link btn btn-primary btn-lg">
+                                Farm
+                            </a>
+                            <a href="#" class="card-link btn btn-primary btn-lg" onclick="getlptoken(2)">
+                                Trade
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card swapcard ">
+                        <span class="badge badge-primary yield-badge"></span>
+                        <div class="card-body">
+                            <div class="tokenpair">
+                                <div class="token1 usdt"></div>
+                                <div class="token2 eth"></div>
+                            </div>
+                            <h6 class="card-subtitle mb-2 text-muted">UNISWAP USDT/ETH</h6>
+                            <h2 class="card-text apy0">APY <span class="pool6yield">---.-%</span></h2>
+                            <a href="#pool6" onclick="nav('pool6')" class="card-link btn btn-primary btn-lg">
+                                Farm
+                            </a>
+                            <a href="#" class="card-link btn btn-primary btn-lg" onclick="getlptoken(3)">
+                                Trade
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card swapcard ">
+                        <span class="badge badge-primary yield-badge"></span>
+                        <div class="card-body">
+                            <div class="tokenpair">
+                                <div class="token1 usdc"></div>
+                                <div class="token2 eth"></div>
+                            </div>
+                            <h6 class="card-subtitle mb-2 text-muted">UNISWAP USDC/ETH</h6>
+                            <h2 class="card-text apy0">APY <span class="pool4yield">---.-%</span></h2>
+                            <a href="#pool4" onclick="nav('pool4')" class="card-link btn btn-primary btn-lg">
+                                Farm
+                            </a>
+                            <a href="#" class="card-link btn btn-primary btn-lg" onclick="getlptoken(4)">
+                                Trade
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card swapcard">
+                        <div class="card-body">
+                            <div class="tokenpair">
+                                <div class="token1 dai"></div>
+                                <div class="token2 eth"></div>
+                            </div>
+                            <h6 class="card-subtitle mb-2 text-muted">UNISWAP DAI/ETH</h6>
+                            <h2 class="card-text apy0">APY <span class="pool5yield">---.-%</span></h2>
+                            <a href="#pool5" onclick="nav('pool5')" class="card-link btn btn-primary btn-lg">
+                                Farm
+                            </a>
+                            <a href="#" class="card-link btn btn-primary btn-lg" onclick="getlptoken(5)">
+                                Trade
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <main role="main" class="inner cover pool" style="display:none">
+            <img src="images/kimbap.png" height="200" />
+            <h1 class="cover-heading farmname">Kimbap Kitchen</h1>
+            <p class="lead"></p>
+            <div class="row">
+                <div class="card hide web3true col-md-12 col-12">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">KIMBAP Claim</h6>
+                        <h2 class="card-text rewardbalance">-.----</h2>
+                        <a href="#" class="card-link btn btn-primary btn-lg" onclick="claimReward()">CLAIM</a>
+                    </div>
+                </div>
+                <div class="card hide web3true  col-md-6 col-12">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Your Wallet</h6>
+                        <h2 class="card-text walletbalance">-.----</h2>
+                        <div class="not-approved-spend">
+                            <a href="#" class="card-link btn btn-primary btn-lg" onclick="approveSpend()">Approve Spend</a>
+                        </div>
+                        <div class="approved-spend">
+                            <a href="#" class="card-link btn btn-primary btn-lg" onclick="addToPool()">Stake</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card hide web3true col-md-6 col-12">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Staked Token</h6>
+                        <h2 class="card-text stakedbalance">-.----</h2>
+                        <a href="#" class="card-link btn btn-primary btn-lg" onclick="removeFromPool()">-</a>
+                    </div>
+                </div>
+                <div class="card hide web3true col-md-12 col-12">
+                    <div class="card-body">
+                        <a href="#" class="card-link btn btn-primary btn-lg" onclick="getlptoken()">Get LP Tokens To Stake</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="mastfoot">
+            <div class="inner">
+                <p>
+                    <a href="https://etherscan.io/address/0xa9af9CB36d7FCBB21149628BDF76Cc8Aa8987FA5#code" target="_blank">Token Contract</a>
+                    <span class="dash-span">-</span> <a href="https://etherscan.io/address/0xf2801E3C60585E126FD89568E9d5BDB249b20CcD#code" target="_blank">MasterChef Contract</a>
+                    <span class="dash-span">-</span> <a href="https://etherscan.io/address/0x6a78a4133a1111debb91b788577ce4371aef6e1b#code" target="_blank">Timelock Contract</a>
+                </p>
+            </div>
+        </footer>
+    </div>
+    <style>
+    /*
+     * Globals
+     */
+    /* Links */
+    a,
+    a:focus,
+    a:hover {
+        color: #fff;
+    }
+
+    /* Custom default button */
+    .btn-secondary,
+    .btn-secondary:hover,
+    .btn-secondary:focus {
+        color: #333;
+        text-shadow: none;
+        /* Prevent inheritance from `body` */
+        background-color: #fff;
+        border: .05rem solid #fff;
+    }
+
+    /*
+     * Base structure
+     */
+    html {
+        height: 100%;
+    }
+
+    body {
+        min-height: 100%;
+        display: -ms-flexbox;
+        display: flex;
+        color: #fff;
+        text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
+        box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+        padding: 50px 10px;
+    }
+
+    .cover-container {
+        max-width: 42em;
+    }
+
+    /*
+     * Header
+     */
+    .masthead {
+        margin-bottom: 2rem;
+    }
+
+    .masthead-brand {
+        margin-bottom: 0;
+    }
+
+    .nav-masthead .nav-link {
+        padding: .25rem 0;
+        color: rgba(255, 255, 255, .5);
+        background-color: transparent;
+        border-bottom: .25rem solid transparent;
+    }
+
+    .nav-masthead .nav-link:hover,
+    .nav-masthead .nav-link:focus {
+        border-bottom-color: rgba(255, 255, 255, .25);
+    }
+
+    .nav-masthead .nav-link+.nav-link {
+        margin-left: 1rem;
+    }
+
+    .nav-masthead .active {
+        color: #fff;
+        border-bottom-color: #fff;
+    }
+
+    @media (min-width: 48em) {
+        .masthead-brand {
+            float: left;
+        }
+
+        .nav-masthead {
+            float: right;
+        }
+    }
+
+    /*
+     * Cover
+     */
+    .cover {
+        padding: 4em 0rem;
+    }
+
+    .cover .btn-lg {
+        padding: .75rem 1.25rem;
+        font-weight: 700;
+    }
+
+    .cover .btn-sm {
+        padding: .25 0.5rem;
+        font-weight: 700;
+    }
+
+    /*
+     * Footer
+     */
+    .mastfoot {
+        margin-top: 50px;
+        color: rgba(255, 255, 255, .5);
+    }
+    </style>
+    <script type="text/javascript">
+        $('.hamburger').click(function(){
+            $('.masthead').toggleClass('active');
+            $(this).toggleClass('active')
+        });
+    </script>
+</body>
+
+</html>
